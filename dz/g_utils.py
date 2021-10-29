@@ -68,8 +68,6 @@ class CocoPresent:
         self.c_id_bbox += 1
 
     def create_json(self):
-        for im in self.annotations:
-            print(asdict(im)["bbox"])
         data = {
             "licenses": self.LICENSES,
             "info": self.INFO,

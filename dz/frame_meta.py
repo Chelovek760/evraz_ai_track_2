@@ -71,7 +71,7 @@ class Detection:
     identity: int = -1
 
     def get_bbox(self) -> tuple:
-        return self.x, self.y, self.width, self.height
+        return int(self.x), int(self.y), int(self.width), int(self.height)
 
     def get_bbox_xyxy(self) -> BBoxXY:
         x_1 = int(min(max(self.x - self.width / 2, 1), self.frame_meta.width - 1))
