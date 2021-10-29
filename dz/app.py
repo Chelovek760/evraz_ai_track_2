@@ -13,6 +13,7 @@ from config import GaleatiConfig
 from g_models.yolo import Yolo
 from g_utils import chunks_generator, CocoPresent
 from frame_meta import FrameMeta
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +50,13 @@ class App:
             for pic in batch:
                 batch_list_pic.append(cv2.imread(pic))
             frames_meta = []
-            frames = torch.Tensor(batch_list_pic).to(self.device)
+
+            frames = torch.from_numpy(np.stack(batch_list_pic)).to(self.device)
+
             frames = frames[:, :, :, [2, 1, 0]].permute(0, 3, 1, 2)
+            print(frames.shape)
             predicts = self.yolo(frames)
+            print(predicts)
             for i, detection in enumerate(predicts):
                 frame_meta = FrameMeta(
                     model_config=self.config.model,
