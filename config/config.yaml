@@ -1,0 +1,10 @@
+defaults:
+  - base_config
+  - model: engine
+  - override hydra/job_logging: log
+  - override hydra/hydra_logging: colorlog
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .

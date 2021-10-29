@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  dz:
+
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    runtime: nvidia
+    volumes:
+      - .:/app
+    ports:
+      - 8199:8199
+    command:  jupyter lab --ip=0.0.0.0 --port=8199 --no-browser --allow-root
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
+    expose:
+     - 5051
+    networks:
+     - va2
+
+networks:
+  va2:
+    external: true
