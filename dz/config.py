@@ -22,7 +22,8 @@ class ModelConfig:
 class GaleatiConfig:
     model: ModelConfig
     source: str = "/app/data/test/images/"
-    dest: str = "/app/data_res/images/test/"
+    dest: str = "/app/data_res/test/images/"
+    json_dest: str = "/app/data_res/test/"
 
 
 cs = ConfigStore.instance()

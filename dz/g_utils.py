@@ -1,47 +1,84 @@
+import json
+from dataclasses import dataclass, asdict
 import datetime
-from typing import List, Sequence
+from typing import List, Sequence, Dict
+
+
+@dataclass
+class ImageCoco:
+    id: int
+    file_name: str
+    width: int = 1920
+    height: int = 1080
+    license: int = 0
+    flickr_url: str = ""
+    coco_url: str = ""
+    date_captured: int = 0
+
+
+@dataclass
+class AnnotationCoco:
+    id: int
+    image_id: int
+    area: float
+    bbox: List
+    category_id: int = 1
+    segmentation = []
+    iscrowd: int = 0
+    atributes = {"occluded": "false"}
 
 
 class CocoPresent:
     def __init__(self, save_path: str):
 
         self.INFO = {
-        "description": "Example Dataset",
-        "url": "https://github.com/waspinator/pycococreator",
-        "version": "0.1.0",
-        "year": 2018,
-        "contributor": "waspinator",
-        "date_created": datetime.datetime.utcnow().isoformat(' ')
-                                }
-        self.LICENSES = [
-                {
-                    "id": 1,
-                    "name": "Attribution-NonCommercial-ShareAlike License",
-                    "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
-                }
-            ]
+            "description": "EVRAZ TASK2",
+            "url": "",
+            "version": "1",
+            "year": 2021,
+            "contributor": "waspinator",
+            "date_created": datetime.datetime.utcnow().isoformat(" "),
+        }
+        self.LICENSES = [{"name": "", "id": 0, "url": ""}]
 
         self.CATEGORIES = [
             {
-                'id': 1,
-                'name': 'square',
-                'supercategory': 'shape',
-            }]
+                "id": 1,
+                "name": "person",
+                "supercategory": "",
+            }
+        ]
         self.save_path = save_path
-        self.images_name = []
-        self.bboxes = []
-        self.ids = []
-        self.c_id = 0
+        self.annotations = []
+        self.c_id_img = 1
+        self.c_id_bbox = 1
         self.postfix = {}
+        self.imgs_index = {}
+        self.images = []
 
     def add_an(self, file_name, bbox):
-        self.images_name.append(file_name)
-        self.ids.append(self.c_id)
-        self.c_id += 1
-        self.bboxes.append(bbox)
+        if file_name not in self.imgs_index:
+            self.imgs_index[file_name] = self.c_id_img
+            self.images.append(ImageCoco(id=self.c_id_img, file_name=file_name))
+            self.c_id_img += 1
+        # TODO area
+        self.annotations.append(
+            AnnotationCoco(id=self.c_id_bbox, image_id=self.imgs_index[file_name], area=0, bbox=bbox)
+        )
+        self.c_id_bbox += 1
 
     def create_json(self):
-        pass
+        for im in self.annotations:
+            print(asdict(im)["bbox"])
+        data = {
+            "licenses": self.LICENSES,
+            "info": self.INFO,
+            "categories": self.CATEGORIES,
+            "images": [asdict(im) for im in self.images],
+            "annotations": [asdict(an) for an in self.annotations],
+        }
+        with open(self.save_path, "w") as outfile:
+            json.dump(data, outfile)
 
 
 def xyxy_to_xywh(*xyxy):

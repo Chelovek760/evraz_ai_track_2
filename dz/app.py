@@ -1,3 +1,4 @@
+import datetime
 import glob
 import time
 import logging
@@ -21,8 +22,9 @@ logger = logging.getLogger(__name__)
 class App:
     def __init__(self, config: GaleatiConfig):
         self.config = config
-        self.coco_maker = CocoPresent(".")
         self.model_config = config.model
+        self.json_dest = self.config.json_dest + str(datetime.datetime.now()) + ".json"
+        self.coco_maker = CocoPresent(self.json_dest)
         self.source = self.config.source + "*.jpg"
         self.dest = Path(self.config.dest)
         self.dest.mkdir(parents=True, exist_ok=True)
@@ -54,9 +56,7 @@ class App:
             frames = torch.from_numpy(np.stack(batch_list_pic)).to(self.device)
 
             frames = frames[:, :, :, [2, 1, 0]].permute(0, 3, 1, 2)
-            print(frames.shape)
             predicts = self.yolo(frames)
-            print(predicts)
             for i, detection in enumerate(predicts):
                 frame_meta = FrameMeta(
                     model_config=self.config.model,
