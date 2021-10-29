@@ -37,7 +37,7 @@ class CocoPresent:
             "version": "1",
             "year": 2021,
             "contributor": "waspinator",
-            "date_created": datetime.datetime.utcnow().isoformat(" "),
+            "date_created": datetime.datetime.utcnow().strftime("%Y_%m_%d_%H_%M"),
         }
         self.LICENSES = [{"name": "", "id": 0, "url": ""}]
 

@@ -23,7 +23,7 @@ class App:
     def __init__(self, config: GaleatiConfig):
         self.config = config
         self.model_config = config.model
-        self.json_dest = self.config.json_dest + str(datetime.datetime.now()) + ".json"
+        self.json_dest = self.config.json_dest + str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")) + ".json"
         self.coco_maker = CocoPresent(self.json_dest)
         self.source = self.config.source + "*.jpg"
         self.dest = Path(self.config.dest)
