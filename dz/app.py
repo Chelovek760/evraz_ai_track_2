@@ -39,10 +39,10 @@ class App:
             self.zones_poly = json.load(f)
         self.zones_side = {}
         self.zones_buttom = {}
-        self.zones_type_id = list(self.zones_types.keys())
+        self.zones_type_id = set(self.zones_types.values())
         for zone_id in self.zones_type_id:
-            self.zones_side[zone_id] = SataticZoneSide(self.zones_poly[zone_id][1])
-            self.zones_buttom[zone_id] = SataticZoneButtom(self.zones_poly[zone_id][0])
+            self.zones_side[zone_id] = SataticZoneSide(self.zones_poly[str(zone_id)][1])
+            self.zones_buttom[zone_id] = SataticZoneButtom(self.zones_poly[str(zone_id)][0])
         self.yolo = Yolo(
             weight=self.config.model.yolo_weights_path,
             model_frame_size=self.config.model.yolo_frame_size,
