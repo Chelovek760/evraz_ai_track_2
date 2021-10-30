@@ -67,11 +67,17 @@ class Detection:
     model_config: ModelConfig
     crop: Optional["DetectionCrop"] = None
 
-    zone_status: bool = None
+    buttom_zone_status: bool = None
+    side_zone_status: bool = None
     identity: int = -1
 
     def get_bbox(self) -> tuple:
-        return int(self.x), int(self.y), int(self.width), int(self.height)
+        return (
+            int(self.x) - int(self.width) // 2,
+            int(self.y) - int(self.height) // 2,
+            int(self.width),
+            int(self.height),
+        )
 
     def get_bbox_xyxy(self) -> BBoxXY:
         x_1 = int(min(max(self.x - self.width / 2, 1), self.frame_meta.width - 1))
@@ -104,15 +110,24 @@ class FrameMeta:
     frame: np.ndarray
     width: int
     height: int
+    zone_type: int
 
-    def __init__(self, model_config: ModelConfig, frame: np.ndarray, frame_ix: int, raw_detections, file_name: str):
+    def __init__(
+        self,
+        model_config: ModelConfig,
+        frame: np.ndarray,
+        frame_ix: int,
+        raw_detections,
+        file_name: str,
+        zone_type: int,
+    ):
         self.detections = []
         self.alarms = []
         self.frame_ix = frame_ix
         self.frame = frame
+        self.zone_type = zone_type
         self.height, self.width = frame.shape[:2]
         self.file_name = file_name
-
         for *xyxy, conf, cls in reversed(raw_detections):
             x_c, y_c, bbox_w, bbox_h = xyxy_to_xywh(*xyxy)
             self.detections.append(
@@ -125,7 +140,8 @@ class FrameMeta:
                     cls=cls.item(),
                     frame_meta=self,
                     model_config=model_config,
-                    zone_status=True,
+                    side_zone_status=True,
+                    buttom_zone_status=True,
                 )
             )
 

@@ -1,15 +1,18 @@
 import datetime
 import glob
+import json
+import multiprocessing
 import time
 import logging
 from pathlib import Path
+from typing import List
 
 import cv2
 import torch
 import hydra
 
 from post_proc import draw_results
-from zone import StaticZone
+from zone import SataticZoneButtom, SataticZoneSide
 from config import GaleatiConfig
 from g_models.yolo import Yolo
 from g_utils import chunks_generator, CocoPresent
@@ -24,15 +27,22 @@ class App:
         self.config = config
         self.model_config = config.model
         self.json_dest = self.config.json_dest + str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")) + ".json"
-        self.coco_maker = CocoPresent(self.json_dest)
+        self.coco_maker = CocoPresent("data/submission_example.json", self.json_dest)
+        self.coco_maker.gen_files_id()
         self.source = self.config.source + "*.jpg"
         self.dest = Path(self.config.dest)
         self.dest.mkdir(parents=True, exist_ok=True)
         self.device = torch.device("cuda")
-        # self.zones_type=self.config.zones_type
-        # self.zones={}
-        # for zone in  self.zones_type:
-        #     self.zones[zone]=StaticZone(zone)
+        with open(self.config.zones_meta, "r") as f:
+            self.zones_types = json.load(f)
+        with open(self.config.zones_poly, "r") as f:
+            self.zones_poly = json.load(f)
+        self.zones_side = {}
+        self.zones_buttom = {}
+        self.zones_type_id = list(self.zones_types.keys())
+        for zone_id in self.zones_type_id:
+            self.zones_side[zone_id] = SataticZoneSide(self.zones_poly[zone_id][1])
+            self.zones_buttom[zone_id] = SataticZoneButtom(self.zones_poly[zone_id][0])
         self.yolo = Yolo(
             weight=self.config.model.yolo_weights_path,
             model_frame_size=self.config.model.yolo_frame_size,
@@ -64,6 +74,7 @@ class App:
                     frame_ix=i,
                     raw_detections=detection,
                     file_name=batch[i],
+                    zone_type=self.zones_types[Path(batch[i]).name],
                 )
                 frames_meta.append(frame_meta)
 
@@ -73,15 +84,28 @@ class App:
                 for detection in frame_meta.detections:
                     detection.make_crop()
             for frame_meta in frames_meta:
+                frames_meta = self.zones_side[frame_meta.zone_type].zone_intersect(frames_meta)
+                frames_meta = self.zones_buttom[frame_meta.zone_type].zone_intersect(frames_meta)
                 file_path_post = Path(frame_meta.file_name)
                 for detection in frame_meta.detections:
                     self.coco_maker.add_an(file_path_post.name, detection.get_bbox())
                 marked_frame = draw_results(frame_meta)
-                cv2.imwrite(str(self.dest / file_path_post.stem) + "_res.jpg", marked_frame)
+                self.write_img(str(self.dest / file_path_post.stem) + "_res.jpg", marked_frame)
             delta = time.perf_counter() - start
             logger.info("Batch time  %s ", str(delta))
 
         self.coco_maker.create_json()
+
+    def write_img(self, files_name: str, img: np.ndarray):
+        writer_thread = multiprocessing.Process(
+            target=self._write_img_t,
+            args=(files_name, img),
+        )
+        writer_thread.daemon = True
+        writer_thread.start()
+
+    def _write_img_t(self, files_name: str, img: np.ndarray):
+        cv2.imwrite(files_name, img)
 
 
 @hydra.main(config_path="../config", config_name="config")

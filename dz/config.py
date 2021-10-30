@@ -24,6 +24,8 @@ class GaleatiConfig:
     source: str = "/app/data/test/images/"
     dest: str = "/app/data_res/test/images/"
     json_dest: str = "/app/data_res/test/"
+    zones_meta: str = "/app/meta/types_zone.json"
+    zones_poly: str = "/app/meta/zones_poly.json"
 
 
 cs = ConfigStore.instance()

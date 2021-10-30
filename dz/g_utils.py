@@ -29,7 +29,7 @@ class AnnotationCoco:
 
 
 class CocoPresent:
-    def __init__(self, save_path: str):
+    def __init__(self, example_path: str, save_path: str):
 
         self.INFO = {
             "description": "EVRAZ TASK2",
@@ -55,12 +55,16 @@ class CocoPresent:
         self.postfix = {}
         self.imgs_index = {}
         self.images = []
+        with open(example_path, "r") as outfile:
+            self.example_json = json.load(outfile)
+
+    def gen_files_id(self):
+        images = self.example_json["images"]
+        for img in images:
+            self.images.append(ImageCoco(id=img["id"], file_name=img["file_name"]))
+            self.imgs_index[img["file_name"]] = img["id"]
 
     def add_an(self, file_name, bbox):
-        if file_name not in self.imgs_index:
-            self.imgs_index[file_name] = self.c_id_img
-            self.images.append(ImageCoco(id=self.c_id_img, file_name=file_name))
-            self.c_id_img += 1
         # TODO area
         self.annotations.append(
             AnnotationCoco(id=self.c_id_bbox, image_id=self.imgs_index[file_name], area=0, bbox=bbox)

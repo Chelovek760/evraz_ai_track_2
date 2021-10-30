@@ -1,2 +1,2 @@
 yolo_frame_size: 1280
-yolo_weights_path: "weights/best.pt"
+yolo_weights_path: "weights/1080-l-3.pt"
