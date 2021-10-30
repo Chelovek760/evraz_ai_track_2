@@ -1,3 +1,4 @@
+import copy
 from typing import List, Dict
 
 import cv2
@@ -9,7 +10,7 @@ from frame_meta import FrameMeta
 
 
 class StaticZoneBase:
-    def __init__(self, zone: Dict, area_percent: float = 0.05):
+    def __init__(self, zone: List, area_percent: float = 0.1):
         self.zone = Polygon(zone)
         self.area_percent = area_percent
         if zone is None:
@@ -65,20 +66,17 @@ class SataticZoneSide(StaticZoneBase):
         return:
             intersect_status: bool
         """
-        x1, y1, x2, y2 = bbox
+        x1, y1, x2, y2 = copy.deepcopy(bbox)
         y1 += int((y2 - y1) * (1 - self.area_percent))
-        x1 += int((x2 - x1) * (1 - self.area_percent))  # Only bottom check
+        x1 += int((x2 - x1) * (1 - self.area_percent))
         box_obj = box(x1, y1, x2, y2)
         status_right = self.zone.intersects(box_obj)
-        x1, y1, x2, y2 = bbox
+        x1, y1, x2, y2 = copy.deepcopy(bbox)
         x2 = x1 + int((x2 - x1) * (self.area_percent))
         y1 += int((y2 - y1) * (1 - self.area_percent))
         box_obj = box(x1, y1, x2, y2)
         status_left = self.zone.intersects(box_obj)
-        if status_left != []:
-            return status_left
-        if status_right != []:
-            return status_right
+        return status_left or status_right
 
     def zone_intersect(self, frame_meta: FrameMeta) -> FrameMeta:
         for detection in frame_meta.detections:

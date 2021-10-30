@@ -1,3 +1,5 @@
+from typing import Dict
+
 import cv2
 import numpy as np
 
@@ -5,9 +7,7 @@ from zone import SataticZoneSide, SataticZoneButtom
 from frame_meta import FrameMeta
 
 
-def draw_results(
-    frame_meta: FrameMeta, zone_side: SataticZoneSide = None, zone_buttom: SataticZoneButtom = None
-) -> np.ndarray:
+def draw_results(frame_meta: FrameMeta, zone_side: dict, zone_buttom: dict) -> np.ndarray:
     img = frame_meta.frame
     side_zone_status = False
     buttom_zone_status = False
@@ -24,7 +24,7 @@ def draw_results(
             if not side_zone_status:
                 side_zone_status = detection.side_zone_status
             if not buttom_zone_status:
-                side_zone_status = detection.buttom_zone_status
-        img = zone_side.draw_zone(img, side_zone_status)
-        img = zone_buttom.draw_zone(img, buttom_zone_status)
+                buttom_zone_status = detection.buttom_zone_status
+        img = zone_side[frame_meta.zone_type].draw_zone(img, side_zone_status)
+        img = zone_buttom[frame_meta.zone_type].draw_zone(img, buttom_zone_status)
     return img

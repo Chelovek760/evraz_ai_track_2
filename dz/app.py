@@ -84,12 +84,12 @@ class App:
                 for detection in frame_meta.detections:
                     detection.make_crop()
             for frame_meta in frames_meta:
-                frames_meta = self.zones_side[frame_meta.zone_type].zone_intersect(frames_meta)
-                frames_meta = self.zones_buttom[frame_meta.zone_type].zone_intersect(frames_meta)
+                self.zones_side[frame_meta.zone_type].zone_intersect(frame_meta)
+                self.zones_buttom[frame_meta.zone_type].zone_intersect(frame_meta)
                 file_path_post = Path(frame_meta.file_name)
                 for detection in frame_meta.detections:
                     self.coco_maker.add_an(file_path_post.name, detection.get_bbox())
-                marked_frame = draw_results(frame_meta)
+                marked_frame = draw_results(frame_meta, self.zones_side, self.zones_buttom)
                 self.write_img(str(self.dest / file_path_post.stem) + "_res.jpg", marked_frame)
             delta = time.perf_counter() - start
             logger.info("Batch time  %s ", str(delta))
