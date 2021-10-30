@@ -9,6 +9,8 @@ def draw_results(
     frame_meta: FrameMeta, zone_side: SataticZoneSide = None, zone_buttom: SataticZoneButtom = None
 ) -> np.ndarray:
     img = frame_meta.frame
+    side_zone_status = False
+    buttom_zone_status = False
     if not frame_meta.is_empty():
         img = img.copy()
         for detection in frame_meta.detections:
@@ -19,6 +21,10 @@ def draw_results(
             t_size = cv2.getTextSize(label_id, cv2.FONT_HERSHEY_PLAIN, 1, 1)[0]
             cv2.rectangle(img, (p1.x, p1.y), (p2.x, p2.y), color, 1)
             cv2.putText(img, label_id, (p1.x, p1.y + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, color, 1)
-            img = zone_side.draw_zone(img, detection.side_zone_status)
-            img = zone_buttom.draw_zone(img, detection.buttom_zone_status)
+            if not side_zone_status:
+                side_zone_status = detection.side_zone_status
+            if not buttom_zone_status:
+                side_zone_status = detection.buttom_zone_status
+        img = zone_side.draw_zone(img, side_zone_status)
+        img = zone_buttom.draw_zone(img, buttom_zone_status)
     return img
