@@ -1,1 +1,2 @@
-Start python -m dz.app 
+Start \
+docker-compose up

@@ -60,7 +60,7 @@ class Yolo:
 
     def __init__(
         self,
-        weight: str,
+        weight: List,
         model_frame_size: int,
         device: torch.device,
         confidence_threshold: float = 0.4,
@@ -70,8 +70,7 @@ class Yolo:
         self.model_frame_size = model_frame_size
         self.confidence_threshold = confidence_threshold
         self.iou_threshold = iou_threshold
-
-        self.model = attempt_load(weight, map_location=device).eval().half()
+        self.model = attempt_load(list(weight), map_location=device).eval().half()
         self.model.zero_grad(set_to_none=True)
 
         self.stride = int(self.model.stride.max())

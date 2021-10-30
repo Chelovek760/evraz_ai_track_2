@@ -1,13 +1,15 @@
 from dataclasses import dataclass
+from typing import List
+
 from hydra.core.config_store import ConfigStore
 
 
 @dataclass
 class ModelConfig:
-    yolo_weights_path: str
+    yolo_weights_path: List[str]
     yolo_frame_size: int
 
-    confidence_threshold: float = 0.6
+    confidence_threshold: float = 0.66
     iou_threshold: float = 0.5
 
     yolo_max_batch_size: int = 10
