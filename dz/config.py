@@ -9,7 +9,7 @@ class ModelConfig:
     yolo_weights_path: List[str]
     yolo_frame_size: int
 
-    confidence_threshold: float = 0.66
+    confidence_threshold: float = 0.77
     iou_threshold: float = 0.5
 
     yolo_max_batch_size: int = 10

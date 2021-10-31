@@ -1,2 +1,2 @@
 yolo_frame_size: 1280
-yolo_weights_path: ["weights/fine_tune_2.pt","weights/keka_tron_no_chine.pt"]
+yolo_weights_path: ["weights/fine_tune_2.pt","weights/best_l.pt"]
