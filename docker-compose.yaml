@@ -10,8 +10,6 @@ services:
     runtime: nvidia
     volumes:
       - .:/app
-    ports:
-      - 8199:8199
     command:  python -m dz.app
     deploy:
       resources:
@@ -20,11 +18,3 @@ services:
             - driver: nvidia
               device_ids: [ '0' ]
               capabilities: [ gpu ]
-    expose:
-     - 5051
-    networks:
-     - va2
-
-networks:
-  va2:
-    external: true
